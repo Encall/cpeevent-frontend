@@ -280,7 +280,7 @@ export default function JoinedEvent({ events }: { events: Event[] }) {
                                                     const eventID = event._id;
 
                                                     navigate(
-                                                        `/workspace/${eventID}`,
+                                                        `/protected/workspace/${eventID}`,
                                                         {
                                                             state: { event },
                                                         },
