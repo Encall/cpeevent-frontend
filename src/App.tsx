@@ -57,6 +57,7 @@ function App() {
                 path="/protected/*"
             />
             <Route element={<Event />} path="/events" />
+            <Route element={<MembersPage />} path="/workspace/:eventid/members" />
             <Route
                 element={
                     <Post>
@@ -74,7 +75,6 @@ function App() {
             </Route>
             <Route element={<CalendarPage />} path="/calendar" />
             <Route element={<TodoPage />} path="/todo" />
-            <Route element={<MembersPage />} path="/members" />
         </Routes>
     );
 }
