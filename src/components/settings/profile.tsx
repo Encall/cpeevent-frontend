@@ -151,7 +151,6 @@ export default function Profile() {
                     />
                 </div>
             </div>
-
             <div className="mt-6 flex flex-row">
                 <Button
                     className={`text-white ${

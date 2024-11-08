@@ -1,46 +1,35 @@
-
+import { useState, useEffect } from 'react';
+import type { Event } from '@/types/index';
 import DefaultLayout from "@/layouts/default";
+import { useQuery } from '@tanstack/react-query';
+import { axiosAPIInstance } from '@/api/axios-config.ts';
 
 export default function MembersPage() {
+    const [members, setMembers] = useState<{ stdID: string; role: string; name: string; tel: string; }[]>([]);
 
-    const members = [
-        {
-            studentID: "65070501038",
-            Name: "COMCAMP 34",
-            Role: "Member",
-            Tel: "0812345678",
-        },
-        {
-            studentID: "65070501055",
-            Name: "ufylukn;f 34",
-            Role: "Member",
-            Tel: "0812345678",
-        },
-        {
-            studentID: "65070501058",
-            Name: "htkhopdh 34",
-            Role: "Admin",
-            Tel: "0812345678",
-        },
-        {
-            studentID: "65070501055",
-            Name: "ufylukn;f 34",
-            Role: "Member",
-            Tel: "0812345678",
-        },
-        {
-            studentID: "65070501058",
-            Name: "htkhopdh 34",
-            Role: "Admin",
-            Tel: "0812345678",
-        },
-        {
-            studentID: "65070501058",
-            Name: "htkhopdh 34",
-            Role: "Admin",
-            Tel: "0812345678",
-        },
-    ];
+    const fetchEvents = async () => {
+        const response = await axiosAPIInstance.get('v1/events');
+        return response.data.data as Event[];
+    };
+
+    const { data: eventsData } = useQuery<Event[]>({
+        queryKey: ['events'],
+        queryFn: fetchEvents,
+    });
+
+    useEffect(() => {
+        if (eventsData) {
+            const allMembers = eventsData.flatMap(event =>
+                event.staff.map(staffMember => ({
+                    stdID: staffMember.stdID,
+                    role: staffMember.role,
+                    name: "",
+                    tel: "",
+                }))
+            );
+            setMembers(allMembers);
+        }
+    }, [eventsData]);
 
     return (
         <DefaultLayout>
@@ -57,25 +46,33 @@ export default function MembersPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {members.map((member, index) => (
-                             <tr
-                             key={index}
-                             className={
-                                 index === 0 || (index > 0 && member.Role === members[index - 1].Role)
-                                     ? "border-t-0"
-                                     : "border-t border-gray-300"
-                             }
-                         >
-                                <td className="px-4 py-3 text-center text-gray-700">{member.studentID}</td>
-                                <td className="px-4 py-3 text-center text-gray-700">{member.Name}</td>
-                                <td className="px-4 py-3 text-center text-gray-700">{member.Role}</td>
-                                <td className="px-4 py-3 text-center text-gray-700">{member.Tel}</td>
-                            </tr>
-                        ))}
+                        {members
+                            .sort((a, b) => {
+                                const roleComparison = a.role.localeCompare(b.role);
+                                if (roleComparison !== 0) {
+                                    return roleComparison;
+                                }
+                                return a.stdID.localeCompare(b.stdID);
+                            })
+                            .map((member, index) => (
+                                <tr
+                                    key={index}
+                                    className={
+                index === 0 || (index > 0 && member.role === members[index - 1].role)
+                    ? "border-t-0"
+                    : "border-t border-gray-300"
+            }
+        >
+            <td className="px-4 py-3 text-center text-gray-700">{member.stdID}</td>
+            <td className="px-4 py-3 text-center text-gray-700">{member.name}</td>
+            <td className="px-4 py-3 text-center text-gray-700">{member.role}</td>
+            <td className="px-4 py-3 text-center text-gray-700">{member.tel}</td>
+        </tr>
+    ))}
+
                     </tbody>
                 </table>
             </div>
-
         </DefaultLayout>
     );
 }

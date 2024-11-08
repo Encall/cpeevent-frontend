@@ -117,6 +117,7 @@ export default function Account() {
 
     const { mutate, isPending, isError, isSuccess } = useMutation({
         mutationFn: updateAccount,
+
     });
 
     const onSubmit = (data: UserAccountType) => {
@@ -139,7 +140,7 @@ export default function Account() {
                         isReadOnly
                         description="You can't change your student ID."
                         placeholder="Student ID"
-                        value={localStorage.getItem('user')?.toString()}
+                        value={userData?.studentID || ''}
                     />
                 </div>
             </div>
