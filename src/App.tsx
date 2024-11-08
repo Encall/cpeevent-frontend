@@ -17,7 +17,7 @@ import AboutPage from '@/pages/about';
 import ProtectedLayout from '@/layouts/ProtectedLayout';
 import CalendarPage from '@/pages/calendar';
 import TodoPage from '@/pages/todo';
-import AllPostEvent from './components/post/AllPostEvent';
+import AllPostEvent from './components/post/allPostEvent';
 import PostDetail from './components/post/postDetail';
 
 function App() {
