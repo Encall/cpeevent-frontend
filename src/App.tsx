@@ -75,10 +75,8 @@ function App() {
                 path="/protected/*"
             />
             <Route element={<Event />} path="/events" />
-
             <Route element={<CalendarPage />} path="/calendar" />
             <Route element={<TodoPage />} path="/todo" />
-            <Route element={<MembersPage />} path="/members" />
         </Routes>
     );
 }

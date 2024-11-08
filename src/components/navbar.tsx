@@ -198,10 +198,20 @@ export const Navbar = () => {
                                     </button>
                                 </DropdownTrigger>
                                 <DropdownMenu aria-label="Static Actions">
-                                    <DropdownItem key="ViewProfile">
+                                    <DropdownItem
+                                        key="ViewProfile"
+                                        onClick={() =>
+                                            navigate('/settings/profile')
+                                        }
+                                    >
                                         View Profile
                                     </DropdownItem>
-                                    <DropdownItem key="Setting">
+                                    <DropdownItem
+                                        key="Setting"
+                                        onClick={() =>
+                                            navigate('/settings/account')
+                                        }
+                                    >
                                         Setting
                                     </DropdownItem>
                                     <DropdownItem

@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 
 import { Event } from '@/types/index';
-import { Logo } from '@/components/icons';
+import logo from '@/images/logo.png';
 import { AuthContext } from '@/context/AuthContext';
 import { axiosAPIInstance } from '@/api/axios-config.ts';
 import { siteConfig } from '@/config/site';
@@ -45,7 +45,7 @@ export const Sidebar = () => {
         >
             <div className="flex items-center justify-center h-32">
                 <Link aria-label="Home" href="/">
-                    <Logo className="w-32 h-32 " />
+                    <img src={logo} alt="logo" className="w-32 h-32" />
                 </Link>
             </div>
             {siteConfig.sideItems.map((item) => (

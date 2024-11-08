@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     Dropdown,
     DropdownItem,
@@ -14,21 +13,23 @@ import {
     useDisclosure,
     Button,
 } from '@nextui-org/react';
+import { useState } from 'react';
 import { LuMoreHorizontal } from 'react-icons/lu';
+import DefaultLayout from '@/layouts/default';
+import { useNavigate, useParams } from 'react-router-dom';
+
 
 import CalendarPage from './calendar';
 
-import DefaultLayout from '@/layouts/default';
 
 interface Props {
     children: React.ReactNode;
 }
 
 export default function Post(props: Props) {
-    // const location = useLocation();
-    // const { event } = location.state as { event: Event };
+    const navigate = useNavigate();
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const [backdrop, setBackdrop] = React.useState<
+    const [backdrop, setBackdrop] = useState<
         'opaque' | 'transparent' | 'blur'
     >('opaque');
 
@@ -36,7 +37,7 @@ export default function Post(props: Props) {
         setBackdrop(backdrop);
         onOpen();
     };
-    // let { eventid } = useParams();
+    const { eventid } = useParams<{ eventid: string }>();
 
     return (
         <DefaultLayout>
@@ -54,7 +55,7 @@ export default function Post(props: Props) {
                         </div>
                     </DropdownTrigger>
                     <DropdownMenu>
-                        <DropdownItem className="text-zinc-600">
+                        <DropdownItem className="text-zinc-600" onClick={() => { navigate(`/workspace/${eventid}/members`); }}>
                             Member
                         </DropdownItem>
                         <DropdownItem

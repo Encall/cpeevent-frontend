@@ -1,40 +1,110 @@
 import { Input, Button, Image } from '@nextui-org/react';
 import { useState, useEffect } from 'react';
-import React from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { FcGoogle } from 'react-icons/fc';
+import { UserAccountType } from '@/types/index';
 
+import { FcGoogle } from 'react-icons/fc';
 import { useSignup } from '@/hooks/use-signup';
 import { Logo } from '@/components/icons';
 import eventImg from '@/images/event.png';
 
+interface InputFieldProps {
+    label: string;
+    name: string;
+    control: any;
+    rules?: any;
+    error?: string;
+    type?: string;
+}
+
+const InputField = ({
+    label,
+    name,
+    control,
+    rules,
+    error,
+    type = 'text',
+}: InputFieldProps) => (
+    <div className="flex flex-col gap-2 w-full">
+        <Controller
+            control={control}
+            name={name}
+            render={({ field }) => (
+                <Input
+                    {...field}
+                    label={label}
+                    errorMessage={error}
+                    isInvalid={!!error}
+                    type={type}
+                    size='sm'
+                />
+            )}
+            rules={rules}
+        />
+    </div>
+);
+
 export default function SignupPage() {
-    const [studentID, setStudentID] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const navigate = useNavigate();
-    const { signup, loading, error } = useSignup();
+    interface UserSignup {
+        studentID: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        phoneNumber: string;
+    }
 
-    const [slideIn, setSlideIn] = useState(false);
+    const schema = z.object({
+        studentID: z
+            .string()
+            .length(11, 'Student ID must be 11 digits')
+            .refine((val) => !isNaN(Number(val)), {
+                message: 'Student ID must be a number',
+            }),
+        password: z.string().min(6, 'Password must be at least 6 characters'),
+        firstName: z.string().min(1, 'First name is required'),
+        lastName: z.string().min(1, 'Last name is required'),
+        email: z.string().email('Invalid email address'),
+        phoneNumber: z
+            .string()
+            .min(1, 'Phone number is required')
+            .refine((val) => !isNaN(Number(val)), {
+                message: 'Phone number must be a number',
+            }),
+    });
 
-    useEffect(() => {
-        setSlideIn(true); // Trigger the slide-in effect on mount
-    }, []);
+    const {
+        control,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<UserAccountType>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            studentID: '',
+            firstName: '',
+            lastName: '',
+            email: '',
+            password: '',
+            phoneNumber: '',
+        },
+    });
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        const year = 1957 + parseInt(studentID.substring(0, 2), 10);
-        const username = email.split('@')[0];
+    const onSubmit = (data: UserSignup) => {
+        const year =
+            new Date().getFullYear() -
+            (1956 + parseInt(data.studentID.substring(0, 2), 10));
+        const username = data.email.split('@')[0];
+
         signup(
-            studentID,
-            email,
-            password,
-            firstName,
-            lastName,
-            phoneNumber,
+            data.studentID,
+            data.email,
+            data.password,
+            data.firstName,
+            data.lastName,
+            data.phoneNumber,
             year,
             username,
         )
@@ -46,6 +116,15 @@ export default function SignupPage() {
                 // Handle Sign up failure (e.g., show an error message)
             });
     };
+
+    const navigate = useNavigate();
+    const { signup, loading, error } = useSignup();
+
+    const [slideIn, setSlideIn] = useState(false);
+
+    useEffect(() => {
+        setSlideIn(true);
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-100 flex justify-center">
@@ -68,89 +147,54 @@ export default function SignupPage() {
                             </p>
                         </div>
                         <form
-                            className="w-full max-w-md flex flex-col gap-4 mx-auto px-6 xl:px-0"
-                            onSubmit={handleSubmit}
+                            className="w-full max-w-md flex flex-col gap-2 mx-auto px-6 xl:px-0"
+                            onSubmit={handleSubmit(onSubmit)}
                         >
-                            <div className="">
-                                <Input
-                                    label="Student ID"
-                                    type="text"
-                                    value={studentID}
-                                    onChange={(e) =>
-                                        setStudentID(e.target.value)
-                                    }
-                                    onKeyDown={(e) => {
-                                        if (
-                                            !/[0-9]/.test(e.key) &&
-                                            e.key !== 'Backspace' &&
-                                            e.key !== 'Delete' &&
-                                            e.key !== 'ArrowLeft' &&
-                                            e.key !== 'ArrowRight' &&
-                                            e.key !== 'Tab'
-                                        ) {
-                                            e.preventDefault();
-                                        }
-                                    }}
+                            <div className={errors.studentID ? "" : "mb-2"}>
+                                <InputField
+                                    label='Student ID'
+                                    control={control}
+                                    error={errors.studentID?.message}
+                                    name="studentID"
                                 />
                             </div>
-                            <div className="">
-                                <Input
-                                    label="Password"
-                                    type={'password'}
-                                    value={password}
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)
-                                    }
+                            <div className={errors.password ? "" : "mb-2"}>
+                                <InputField
+                                    label='Password'
+                                    control={control}
+                                    error={errors.password?.message}
+                                    name="password"
+                                    type="password"
                                 />
                             </div>
-                            <div className="flex items-center justify-between">
-                                <Input
-                                    label="First Name"
-                                    type="text"
-                                    value={firstName}
-                                    onChange={(e) =>
-                                        setFirstName(e.target.value)
-                                    }
-                                    className="mr-4"
+                            <div className={(errors.firstName || errors.lastName) ? "flex gap-2" : "flex gap-2 mb-2"}>
+                                <InputField
+                                    label='First Name'
+                                    control={control}
+                                    error={errors.firstName?.message}
+                                    name="firstName"
                                 />
-                                <Input
-                                    label="Last Name"
-                                    type="text"
-                                    value={lastName}
-                                    onChange={(e) =>
-                                        setLastName(e.target.value)
-                                    }
+                                <InputField
+                                    label='Last Name'
+                                    control={control}
+                                    error={errors.lastName?.message}
+                                    name="lastName"
                                 />
                             </div>
-                            <div className="">
-                                <Input
-                                    label="Email"
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                            <div className={errors.email ? "" : "mb-2"}>
+                                <InputField
+                                    label='Email'
+                                    control={control}
+                                    error={errors.email?.message}
+                                    name="email"
                                 />
                             </div>
-                            <div className="">
-                                <Input
-                                    label="Phone Number"
-                                    type="text"
-                                    value={phoneNumber}
-                                    onChange={(e) =>
-                                        setPhoneNumber(e.target.value)
-                                    }
-                                    onKeyDown={(e) => {
-                                        if (
-                                            !/[0-9]/.test(e.key) &&
-                                            e.key !== 'Backspace' &&
-                                            e.key !== 'Delete' &&
-                                            e.key !== 'ArrowLeft' &&
-                                            e.key !== 'ArrowRight' &&
-                                            e.key !== 'Tab' &&
-                                            e.key !== 'Enter'
-                                        ) {
-                                            e.preventDefault();
-                                        }
-                                    }}
+                            <div className={errors.phoneNumber ? "" : "mb-2"}>
+                                <InputField
+                                    label='Phone Number'
+                                    control={control}
+                                    error={errors.phoneNumber?.message}
+                                    name="phoneNumber"
                                 />
                             </div>
                             <Button
@@ -160,7 +204,14 @@ export default function SignupPage() {
                             >
                                 {loading ? 'Signing up...' : 'Sign up'}
                             </Button>
-                            {error && <p className="text-red-500">{error}</p>}
+                            {error && (
+                                <p className="text-red-500">
+                                    {error ===
+                                    'Request failed with status code 409'
+                                        ? 'This student ID is already registered'
+                                        : 'Sign up failed'}
+                                </p>
+                            )}
                             <div className="relative flex items-center">
                                 <div className="flex-grow border-t border-gray-400" />
                                 <span className="flex-shrink mx-4 text-sm text-gray-400">
@@ -185,7 +236,7 @@ export default function SignupPage() {
                 </div>
                 {/* Right Section */}
                 <div className="hidden lg:flex flex-col gap-3 mx-auto lg:w-3/5 p-6 sm:p-12 justify-center items-center">
-                    <Image src={eventImg} alt="event" />
+                    <Image alt="event" src={eventImg} />
                 </div>
             </div>
         </div>

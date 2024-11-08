@@ -42,3 +42,16 @@ export interface PostEventProps {
         options: string[];
     }[];
 }
+
+export interface UserAccountType {
+    studentID: string;
+    firstName: string;
+    lastName: string;
+    year: number;
+    imgProfile: string;
+    email: string;
+    password: string;
+    phoneNumber: string;
+    username: string;
+    created_at: Date;
+}

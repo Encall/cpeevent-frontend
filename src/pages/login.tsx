@@ -1,7 +1,11 @@
 import { Input, Button, Checkbox, Image } from '@nextui-org/react';
-import { useState } from 'react';
 import React from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
+import { UserAccountType } from '@/types/index';
+
 import { FcGoogle } from 'react-icons/fc';
 import eventImg from '@/images/event.png';
 import { Logo } from '@/components/icons';
@@ -60,17 +64,83 @@ const EyeIcon: React.FC<EyeIconProps> = ({ isVisible, ...props }) => (
     </svg>
 );
 
+interface InputFieldProps {
+    label: string;
+    name: string;
+    control: any;
+    rules?: any;
+    error?: string;
+    type?: string;
+    endContent?: React.ReactNode;
+}
+
+const InputField = ({
+    label,
+    name,
+    control,
+    rules,
+    error,
+    type = 'text',
+    endContent,
+}: InputFieldProps) => (
+    <div className="flex flex-col gap-2 w-full">
+        <Controller
+            control={control}
+            name={name}
+            render={({ field }) => (
+                <Input
+                    {...field}
+                    label={label}
+                    errorMessage={error}
+                    isInvalid={!!error}
+                    type={type}
+                    size="sm"
+                    endContent={endContent}
+                />
+            )}
+            rules={rules}
+        />
+    </div>
+);
+
 export default function LoginPage() {
-    const [user, setUser] = useState(''); //changed from email, setEmail
-    const [password, setPassword] = useState('');
+    interface UserLogin {
+        studentID: string;
+        password: string;
+    }
+
+    const schema = z.object({
+        studentID: z
+            .string()
+            .length(11, 'Student ID must be 11 digits')
+            .refine((val) => !isNaN(Number(val)), {
+                message: 'Student ID must be a number',
+            }),
+        password: z.string().min(6, 'Password must be at least 6 characters'),
+    });
+
+    const {
+        control,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<UserAccountType>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            studentID: '',
+            firstName: '',
+            lastName: '',
+            email: '',
+            password: '',
+            phoneNumber: '',
+        },
+    });
     const navigate = useNavigate();
 
     const [isVisible, setIsVisible] = React.useState(false);
     const { login, loading, error } = useLogin();
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        login(user, password)
+    const onSubmit = (data: UserLogin) => {
+        login(data.studentID, data.password)
             .then(() => {
                 navigate('/'); // Navigate to home page on successful login
             })
@@ -102,18 +172,25 @@ export default function LoginPage() {
                         </div>
                         <form
                             className="w-full max-w-md flex flex-col gap-4 mx-auto px-6 xl:px-0"
-                            onSubmit={handleSubmit}
+                            onSubmit={handleSubmit(onSubmit)}
                         >
                             <div className="">
-                                <Input
+                                <InputField
+                                    control={control}
                                     label="Student ID"
-                                    type="text"
-                                    value={user}
-                                    onChange={(e) => setUser(e.target.value)}
+                                    name="studentID"
+                                    rules={schema.pick({ studentID: true })}
+                                    error={errors.studentID?.message}
                                 />
                             </div>
                             <div className="">
-                                <Input
+                                <InputField
+                                    control={control}
+                                    label="Password"
+                                    name="password"
+                                    rules={schema.pick({ password: true })}
+                                    error={errors.password?.message}
+                                    type={isVisible ? 'text' : 'password'}
                                     endContent={
                                         <button
                                             aria-label="toggle password visibility"
@@ -128,12 +205,6 @@ export default function LoginPage() {
                                                 isVisible={isVisible}
                                             />
                                         </button>
-                                    }
-                                    label="Password"
-                                    type={isVisible ? 'text' : 'password'}
-                                    value={password}
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)
                                     }
                                 />
                             </div>
