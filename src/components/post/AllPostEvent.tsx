@@ -48,11 +48,8 @@ export default function AllPostEvent() {
         const response = await axiosAPIInstance.get(
             `v1/event/${eventid}/posts`,
         );
-
         return response.data.data;
     };
-
-    console.log(eventid);
 
     const {
         data: posts = [],
@@ -62,6 +59,7 @@ export default function AllPostEvent() {
         queryKey: ['posts', eventid],
         queryFn: fetchPosts,
     });
+
     const [searchInput, setSearchInput] = useState<string>('');
     const [sortOption, setSortOption] = useState<string>('DateDSC');
     const [sortedAndSearchEvents, setSortedAndSearchEvents] = useState<
@@ -391,12 +389,12 @@ export default function AllPostEvent() {
                                                   `/workspace/${eventid}/post/${post._id}`,
                                               )
                                             : post.kind === 'vote'
-                                              ? navigate(
-                                                    `/workspace/${eventid}/vote/${post._id}`,
-                                                )
-                                              : navigate(
-                                                    `/workspace/${eventid}/form/${post._id}`,
-                                                );
+                                            ? navigate(
+                                                  `/workspace/${eventid}/vote/${post._id}`,
+                                              )
+                                            : navigate(
+                                                  `/workspace/${eventid}/form/${post._id}`,
+                                              );
                                     }}
                                 >
                                     <CardHeader className="flex gap-3 flex-col bg-zinc-75  items-start">
@@ -470,14 +468,12 @@ export default function AllPostEvent() {
                                                     }
                                                 >
                                                     {post.endDate
-                                                        ? new Date(
-                                                              post.endDate,
-                                                          ) >= new Date() // Check if end date is in the future
-                                                            ? formatDate(
+                                                        ? post.timeUp
+                                                            ? 'Ended'
+                                                            : formatDate(
                                                                   post.endDate,
                                                                   'end',
                                                               )
-                                                            : 'Ended'
                                                         : 'No end date'}
                                                     !
                                                 </span>
@@ -494,12 +490,12 @@ export default function AllPostEvent() {
                                                           `/workspace/${eventid}/post/${post._id}`,
                                                       )
                                                     : post.kind === 'vote'
-                                                      ? navigate(
-                                                            `/workspace/${eventid}/vote/${post._id}`,
-                                                        )
-                                                      : navigate(
-                                                            `/workspace/${eventid}/form/${post._id}`,
-                                                        );
+                                                    ? navigate(
+                                                          `/workspace/${eventid}/vote/${post._id}`,
+                                                      )
+                                                    : navigate(
+                                                          `/workspace/${eventid}/form/${post._id}`,
+                                                      );
                                             }}
                                         >
                                             Learn More

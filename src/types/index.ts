@@ -25,6 +25,7 @@ export interface Event {
     }[];
 }
 
+
 export interface PostEventProps {
     _id?: string;
     kind: string;
@@ -42,6 +43,7 @@ export interface PostEventProps {
         inputType?: string;
         options: string[];
     }[];
+    timeUp?: boolean;
 }
 
 export interface UserAccountType {
