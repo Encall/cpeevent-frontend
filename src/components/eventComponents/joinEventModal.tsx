@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Select, SelectItem } from '@nextui-org/react';
 import { useQuery } from '@tanstack/react-query';
+import image from '@/assets/images/undraw_Events_re_2p66.svg';
 
 import { axiosAPIInstance } from '@/api/axios-config.ts';
 
